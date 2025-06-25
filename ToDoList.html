@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Beautiful To-Do List</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    /* Add these new styles for better button feedback */
+
+    .action-items button {
+      margin: 0 5px;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .action-items button:hover {
+      transform: scale(1.05);
+    }
+
+    .edit-btn {
+      background-color: #2196f3;
+      color: white;
+    }
+
+    .edit-btn:hover {
+      background-color: #1976d2;
+    }
+
+    .save-btn {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    .save-btn:hover {
+      background-color: #388e3c;
+    }
+
+    .delete-btn {
+      background-color: #f44336;
+      color: white;
+    }
+
+    .delete-btn:hover {
+      background-color: #d32f2f;
+    }
+
+    /* Make sure buttons are inline and visible */
+    .action-items {
+      display: flex;
+      gap: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="header">
+    <h1><i class="fa-solid fa-list-check"></i> My To-Do List</h1>
+    <button id="darkModeToggle" class="btn dark-btn">Toggle Dark Mode</button>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-container">
+    <form class="form" id="todo-form">
+      <h2 class="form-title">Add New Task</h2>
+
+      <div class="form-row">
+        <label for="todo-input" class="form-label">Task</label>
+        <input type="text" id="todo-input" class="form-input" placeholder="Enter your task">
+      </div>
+
+      <div class="form-row">
+        <label for="todo-date" class="form-label">Due Date</label>
+        <input type="date" id="todo-date" class="form-input">
+      </div>
+
+      <button type="button" id="submit" class="btn btn-add">Add Task</button>
+    </form>
+
+    <!-- Priority Legend -->
+    <section class="priority-legend">
+      <h3>Priority Legend</h3>
+      <ul>
+        <li><span class="legend high"></span> High Priority</li>
+        <li><span class="legend medium"></span> Medium Priority</li>
+        <li><span class="legend low"></span> Low Priority</li>
+      </ul>
+    </section>
+
+    <!-- Task List -->
+    <section class="todo-list-section">
+      <h2>Your Tasks</h2>
+      <div id="todo-list" class="todo-list"></div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2025 My Beautiful To-Do List</p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const taskInput = document.getElementById('todo-input');
+      const dueDateInput = document.getElementById('todo-date');
+      const taskList = document.getElementById('todo-list');
+      const darkModeBtn = document.getElementById('darkModeToggle');
+      const addButton = document.getElementById('submit');
+      const body = document.body;
+
+      // Add Task
+      addButton.addEventListener('click', function () {
+        const taskText = taskInput.value.trim();
+        const dueDate = dueDateInput.value;
+
+        if (taskText === '' || dueDate === '') {
+          alert('Please enter a task and select a due date.');
+          return;
+        }
+
+        const listItem = document.createElement('div');
+        listItem.classList.add('todo-item');
+
+        const priority = calculatePriority(dueDate);
+        listItem.classList.add(priority);
+
+        listItem.innerHTML = `
+          <input type="text" class="text" value="${taskText}" readonly />
+          <span class="due-date">${dueDate}</span>
+          <div class="action-items">
+            <button class="edit-btn">Edit</button>
+            <button class="save-btn" style="display:none;">Save</button>
+            <button class="delete-btn">Delete</button>
+          </div>
+        `;
+
+        taskList.appendChild(listItem);
+
+        taskInput.value = '';
+        dueDateInput.value = '';
+      });
+
+      // Handle Task Actions
+      taskList.addEventListener('click', function (e) {
+        const item = e.target.closest('.todo-item');
+
+        if (e.target.closest('.delete-btn')) {
+          item.remove();
+        }
+
+        if (e.target.closest('.edit-btn')) {
+          const textInput = item.querySelector('.text');
+          textInput.removeAttribute('readonly');
+          textInput.focus();
+
+          item.querySelector('.edit-btn').style.display = 'none';
+          item.querySelector('.save-btn').style.display = 'inline-block';
+        }
+
+        if (e.target.closest('.save-btn')) {
+          const textInput = item.querySelector('.text');
+          textInput.setAttribute('readonly', true);
+
+          item.querySelector('.edit-btn').style.display = 'inline-block';
+          item.querySelector('.save-btn').style.display = 'none';
+        }
+      });
+
+      // Dark Mode Toggle
+      darkModeBtn.addEventListener('click', function () {
+        body.classList.toggle('dark-theme');
+      });
+
+      // Calculate Priority Based on Due Date
+      function calculatePriority(dueDate) {
+        const today = new Date();
+        const due = new Date(dueDate);
+        const timeDiff = (due - today) / (1000 * 60 * 60 * 24);
+
+        if (timeDiff <= 1) {
+          return 'high';
+        } else if (timeDiff <= 3) {
+          return 'medium';
+        } else {
+          return 'low';
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
